@@ -1,7 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+    deleteFromCloudinary,
+    uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -217,9 +220,13 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+    console.log(req.user);
+
     return res
         .status(200)
-        .json(200, req.user, "current user fetched successfully");
+        .json(
+            new ApiResponse(200, req.user, "current user fetched successfully")
+        );
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -241,7 +248,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-    const coverImageLocalPath = req.file?.path;
+    // const coverImageLocalPath = req.file?.path;
+    const coverImageLocalPath = req.files?.avatar?.[0]?.path;
     if (!coverImageLocalPath)
         throw new ApiError(400, "Cover Image file is required for updation");
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
@@ -264,11 +272,18 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    const avatarLocalPath = req.file?.path;
+    // const avatarLocalPath = req.file?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
     if (!avatarLocalPath)
         throw new ApiError(400, "Avatar file is required for updation");
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     if (!avatar) throw new ApiError(502, "Error while uploading on avatar");
+
+    const isDeleted = await deleteFromCloudinary(req.user.avatar);
+    if (!isDeleted)
+        console.log(
+            "Sommething went wrong while deleting the old avatar from cloudinary"
+        );
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
