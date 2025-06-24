@@ -249,8 +249,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-    // const coverImageLocalPath = req.file?.path;
-    const coverImageLocalPath = req.files?.avatar?.[0]?.path;
+    const coverImageLocalPath = req.file?.path;
+    // const coverImageLocalPath = req.files?.avatar?.[0]?.path;
     if (!coverImageLocalPath)
         throw new ApiError(400, "Cover Image file is required for updation");
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
@@ -273,8 +273,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    // const avatarLocalPath = req.file?.path;
-    const avatarLocalPath = req.files?.avatar?.[0]?.path;
+    const avatarLocalPath = req.file?.path;
+    // const avatarLocalPath = req.files?.avatar?.[0]?.path;
     if (!avatarLocalPath)
         throw new ApiError(400, "Avatar file is required for updation");
     const avatar = await uploadOnCloudinary(avatarLocalPath);
