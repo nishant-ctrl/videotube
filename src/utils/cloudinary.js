@@ -6,12 +6,12 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_SECRET_KEY,
 });
 const extractPublicId = (url) => {
-    const match = url.match(
-        /\/upload\/(?:v\d+\/)?(.+?)\.(jpg|jpeg|png|webp|gif)$/
-    );
-    return match ? match[1] : null;
+    const withoutParams = url.split("?")[0]; // Remove query params
+    const parts = withoutParams.split("/"); // Split by /
+    const filenameWithExt = parts[parts.length - 1]; // Get 'ppqeorbdpxtbrd2qt493.avi'
+    const publicId = filenameWithExt.split(".")[0]; // Get 'ppqeorbdpxtbrd2qt493'
+    return publicId;
 };
-
 const uploadOnCloudinary = async (localFilePath) => {
     try {
         if (!localFilePath) return null;
@@ -37,8 +37,9 @@ const deleteFromCloudinary = async (url) => {
 
         const response = await cloudinary.uploader.destroy(publicId);
         // console.log("Deleted");
-        if(!response) console.log("Error while deleting avatar from cloudinary");
-        
+        if (!response)
+            console.log("Error while deleting avatar from cloudinary");
+
         return response;
     } catch (error) {
         console.log("Not deleted");
